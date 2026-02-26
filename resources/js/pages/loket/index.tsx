@@ -6,7 +6,7 @@ import {
     CheckCircle2, Clock, Users, Star, AlertCircle,
     Shield, CreditCard, Stethoscope, FileText, ClipboardCheck,
     Save, Phone, MapPin, User, Heart, Briefcase, Droplets,
-    Hash, Home, Building
+    Hash, Home, Building, LogOut
 } from 'lucide-react';
 
 interface QueueItem {
@@ -199,6 +199,17 @@ export default function LoketPage() {
                                 ))}
                             </div>
                         )}
+                    </div>
+
+                    {/* Logout Button */}
+                    <div className="p-2 border-t border-slate-200 bg-slate-50">
+                        <button
+                            onClick={() => router.post('/logout')}
+                            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors active:scale-95"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Keluar
+                        </button>
                     </div>
                 </aside>
 

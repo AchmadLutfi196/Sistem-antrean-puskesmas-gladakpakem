@@ -61,7 +61,7 @@ class Queue extends Model
     public static function generateNextNumber(string $prefix, string $date): string
     {
         $lastQueue = static::where('queue_prefix', $prefix)
-            ->where('queue_date', $date)
+            ->whereDate('queue_date', $date)
             ->orderByRaw("CAST(SUBSTR(queue_number, INSTR(queue_number, '-') + 1) AS INTEGER) DESC")
             ->first();
 

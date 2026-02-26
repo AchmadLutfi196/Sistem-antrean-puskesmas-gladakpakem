@@ -18,7 +18,7 @@ class KioskController extends Controller
             ->map(function ($poly) {
                 $today = now()->toDateString();
                 $todayCount = Queue::where('poly_id', $poly->id)
-                    ->where('queue_date', $today)
+                    ->whereDate('queue_date', $today)
                     ->whereNotIn('status', ['cancelled'])
                     ->count();
 
@@ -59,7 +59,7 @@ class KioskController extends Controller
 
         // Calculate estimated wait time
         $avgMinutes = (int) QueueConfig::getValue('avg_service_minutes', '5');
-        $waitingBefore = Queue::where('queue_date', $today)
+        $waitingBefore = Queue::whereDate('queue_date', $today)
             ->where('status', 'waiting')
             ->when($validated['queue_category'] === 'prioritas', function ($q) {
                 $q->where('queue_category', 'prioritas');

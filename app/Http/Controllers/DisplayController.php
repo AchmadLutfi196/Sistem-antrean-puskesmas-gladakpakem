@@ -25,7 +25,7 @@ class DisplayController extends Controller
 
         // Currently serving (called or serving status)
         $serving = Queue::with('polyclinic')
-            ->where('queue_date', $today)
+            ->whereDate('queue_date', $today)
             ->whereIn('status', ['called', 'serving'])
             ->orderBy('counter_number')
             ->get()
@@ -39,7 +39,7 @@ class DisplayController extends Controller
 
         // Priority waiting
         $priorityWaiting = Queue::with('polyclinic')
-            ->where('queue_date', $today)
+            ->whereDate('queue_date', $today)
             ->where('queue_category', 'prioritas')
             ->where('status', 'waiting')
             ->orderBy('id')
@@ -53,7 +53,7 @@ class DisplayController extends Controller
 
         // General waiting
         $generalWaiting = Queue::with('polyclinic')
-            ->where('queue_date', $today)
+            ->whereDate('queue_date', $today)
             ->where('queue_category', 'umum')
             ->where('status', 'waiting')
             ->orderBy('id')
@@ -65,10 +65,10 @@ class DisplayController extends Controller
             ]);
 
         // Stats
-        $totalToday = Queue::where('queue_date', $today)->whereNotIn('status', ['cancelled'])->count();
-        $registered = Queue::where('queue_date', $today)->whereIn('status', ['registered', 'directed_to_poly', 'done'])->count();
-        $waiting = Queue::where('queue_date', $today)->where('status', 'waiting')->count();
-        $priorityCount = Queue::where('queue_date', $today)->where('queue_category', 'prioritas')->whereNotIn('status', ['cancelled'])->count();
+        $totalToday = Queue::whereDate('queue_date', $today)->whereNotIn('status', ['cancelled'])->count();
+        $registered = Queue::whereDate('queue_date', $today)->whereIn('status', ['registered', 'directed_to_poly', 'done'])->count();
+        $waiting = Queue::whereDate('queue_date', $today)->where('status', 'waiting')->count();
+        $priorityCount = Queue::whereDate('queue_date', $today)->where('queue_category', 'prioritas')->whereNotIn('status', ['cancelled'])->count();
 
         // Per-poly stats
         $polyStats = Polyclinic::where('is_active', true)
@@ -76,13 +76,13 @@ class DisplayController extends Controller
             ->get()
             ->map(fn($p) => [
                 'name' => $p->name,
-                'total' => Queue::where('poly_id', $p->id)->where('queue_date', $today)->whereNotIn('status', ['cancelled'])->count(),
-                'waiting' => Queue::where('poly_id', $p->id)->where('queue_date', $today)->where('status', 'waiting')->count(),
+                'total' => Queue::where('poly_id', $p->id)->whereDate('queue_date', $today)->whereNotIn('status', ['cancelled'])->count(),
+                'waiting' => Queue::where('poly_id', $p->id)->whereDate('queue_date', $today)->where('status', 'waiting')->count(),
             ]);
 
         // Last called queue (for TTS announcement)
         $lastCalled = Queue::with('polyclinic')
-            ->where('queue_date', $today)
+            ->whereDate('queue_date', $today)
             ->whereIn('status', ['called', 'serving'])
             ->orderBy('called_at', 'desc')
             ->first();
@@ -95,8 +95,8 @@ class DisplayController extends Controller
             'serving' => $serving,
             'priorityWaiting' => $priorityWaiting,
             'generalWaiting' => $generalWaiting,
-            'priorityRemainingCount' => Queue::where('queue_date', $today)->where('queue_category', 'prioritas')->where('status', 'waiting')->count(),
-            'generalRemainingCount' => Queue::where('queue_date', $today)->where('queue_category', 'umum')->where('status', 'waiting')->count(),
+            'priorityRemainingCount' => Queue::whereDate('queue_date', $today)->where('queue_category', 'prioritas')->where('status', 'waiting')->count(),
+            'generalRemainingCount' => Queue::whereDate('queue_date', $today)->where('queue_category', 'umum')->where('status', 'waiting')->count(),
             'totalToday' => $totalToday,
             'registered' => $registered,
             'waiting' => $waiting,

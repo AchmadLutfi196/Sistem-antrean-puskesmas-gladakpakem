@@ -24,16 +24,16 @@ class AdminController extends Controller
     {
         $today = now()->toDateString();
 
-        $totalToday = Queue::where('queue_date', $today)->whereNotIn('status', ['cancelled'])->count();
-        $registered = Queue::where('queue_date', $today)->whereIn('status', ['registered', 'directed_to_poly', 'done'])->count();
-        $waiting = Queue::where('queue_date', $today)->where('status', 'waiting')->count();
-        $priorityCount = Queue::where('queue_date', $today)->where('queue_category', 'prioritas')->whereNotIn('status', ['cancelled'])->count();
+        $totalToday = Queue::whereDate('queue_date', $today)->whereNotIn('status', ['cancelled'])->count();
+        $registered = Queue::whereDate('queue_date', $today)->whereIn('status', ['registered', 'directed_to_poly', 'done'])->count();
+        $waiting = Queue::whereDate('queue_date', $today)->where('status', 'waiting')->count();
+        $priorityCount = Queue::whereDate('queue_date', $today)->where('queue_category', 'prioritas')->whereNotIn('status', ['cancelled'])->count();
 
         // Patient counts
-        $newPatients = Registration::where('registration_date', $today)->where('patient_type', 'baru')->count();
-        $oldPatients = Registration::where('registration_date', $today)->where('patient_type', 'lama')->count();
-        $bpjsPatients = Registration::where('registration_date', $today)->where('payment_type', 'bpjs')->count();
-        $umumPatients = Registration::where('registration_date', $today)->where('payment_type', 'umum')->count();
+        $newPatients = Registration::whereDate('registration_date', $today)->where('patient_type', 'baru')->count();
+        $oldPatients = Registration::whereDate('registration_date', $today)->where('patient_type', 'lama')->count();
+        $bpjsPatients = Registration::whereDate('registration_date', $today)->where('payment_type', 'bpjs')->count();
+        $umumPatients = Registration::whereDate('registration_date', $today)->where('payment_type', 'umum')->count();
 
         // Per-poly stats
         $polyStats = Polyclinic::where('is_active', true)
@@ -41,13 +41,13 @@ class AdminController extends Controller
             ->get()
             ->map(fn($p) => [
                 'name' => $p->name,
-                'total' => Queue::where('poly_id', $p->id)->where('queue_date', $today)->whereNotIn('status', ['cancelled'])->count(),
-                'waiting' => Queue::where('poly_id', $p->id)->where('queue_date', $today)->where('status', 'waiting')->count(),
-                'done' => Queue::where('poly_id', $p->id)->where('queue_date', $today)->whereIn('status', ['done', 'directed_to_poly'])->count(),
+                'total' => Queue::where('poly_id', $p->id)->whereDate('queue_date', $today)->whereNotIn('status', ['cancelled'])->count(),
+                'waiting' => Queue::where('poly_id', $p->id)->whereDate('queue_date', $today)->where('status', 'waiting')->count(),
+                'done' => Queue::where('poly_id', $p->id)->whereDate('queue_date', $today)->whereIn('status', ['done', 'directed_to_poly'])->count(),
             ]);
 
         // Average wait time (approximate)
-        $avgWaitMinutes = Queue::where('queue_date', $today)
+        $avgWaitMinutes = Queue::whereDate('queue_date', $today)
             ->whereNotNull('called_at')
             ->whereNotNull('created_at')
             ->get()

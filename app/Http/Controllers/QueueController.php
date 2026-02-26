@@ -21,13 +21,13 @@ class QueueController extends Controller
         $counterNumber = $validated['counter_number'];
 
         // Skip any currently-serving queue at this counter
-        Queue::where('queue_date', $today)
+        Queue::whereDate('queue_date', $today)
             ->where('counter_number', $counterNumber)
             ->whereIn('status', ['called', 'serving'])
             ->update(['status' => 'serving']);
 
         // Prioritize: pick priority first, then general
-        $nextQueue = Queue::where('queue_date', $today)
+        $nextQueue = Queue::whereDate('queue_date', $today)
             ->where('status', 'waiting')
             ->orderByRaw("CASE WHEN queue_category = 'prioritas' THEN 0 ELSE 1 END")
             ->orderBy('id')

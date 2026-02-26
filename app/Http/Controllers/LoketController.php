@@ -22,7 +22,7 @@ class LoketController extends Controller
 
         // Queue list for sidebar
         $queues = Queue::with('polyclinic')
-            ->where('queue_date', $today)
+            ->whereDate('queue_date', $today)
             ->whereIn('status', ['waiting', 'called', 'serving', 'skipped'])
             ->orderByRaw("CASE WHEN queue_category = 'prioritas' THEN 0 ELSE 1 END")
             ->orderByRaw("CASE status WHEN 'serving' THEN 0 WHEN 'called' THEN 1 WHEN 'waiting' THEN 2 WHEN 'skipped' THEN 3 END")
@@ -42,7 +42,7 @@ class LoketController extends Controller
         // Currently serving at user's counter
         $counterNumber = $request->session()->get('counter_number', 1);
         $currentServing = Queue::with('polyclinic')
-            ->where('queue_date', $today)
+            ->whereDate('queue_date', $today)
             ->where('counter_number', $counterNumber)
             ->whereIn('status', ['called', 'serving'])
             ->orderBy('called_at', 'desc')
@@ -67,10 +67,10 @@ class LoketController extends Controller
 
         // Stats
         $stats = [
-            'totalToday' => Queue::where('queue_date', $today)->whereNotIn('status', ['cancelled'])->count(),
-            'waiting' => Queue::where('queue_date', $today)->where('status', 'waiting')->count(),
-            'served' => Queue::where('queue_date', $today)->whereIn('status', ['done', 'registered', 'directed_to_poly'])->count(),
-            'skipped' => Queue::where('queue_date', $today)->where('status', 'skipped')->count(),
+            'totalToday' => Queue::whereDate('queue_date', $today)->whereNotIn('status', ['cancelled'])->count(),
+            'waiting' => Queue::whereDate('queue_date', $today)->where('status', 'waiting')->count(),
+            'served' => Queue::whereDate('queue_date', $today)->whereIn('status', ['done', 'registered', 'directed_to_poly'])->count(),
+            'skipped' => Queue::whereDate('queue_date', $today)->where('status', 'skipped')->count(),
         ];
 
         return Inertia::render('loket/index', [
